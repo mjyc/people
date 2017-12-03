@@ -41,14 +41,34 @@ include_directories(
 catkin_package(INCLUDE_DIRS include
   CATKIN_DEPENDS people_msgs sensor_msgs std_msgs geometry_msgs visualization_msgs)
 
+execute_process(COMMAND lsb_release -rs
+  OUTPUT_VARIABLE
+  LSB_RELEASE_SHORT
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if (${LSB_RELEASE_SHORT} STREQUAL "16.04")
+
 ## Declare a cpp executable
-add_executable(leg_detector 
+add_executable(leg_detector
                src/laser_processor.cpp
-               src/leg_detector.cpp 
+               src/leg_detector_cv3.cpp
+               src/calc_leg_features.cpp)
+
+## Add cmake target dependencies of the executable/library
+add_dependencies(leg_detector ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+else()
+
+## Declare a cpp executable
+add_executable(leg_detector
+               src/laser_processor.cpp
+               src/leg_detector.cpp
                src/calc_leg_features.cpp)
 
 ## Add cmake target dependencies of the executable/library
 add_dependencies(leg_detector people_msgs_gencpp ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+endif()
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(leg_detector
